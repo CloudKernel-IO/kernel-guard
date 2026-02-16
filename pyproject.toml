@@ -1,0 +1,56 @@
+[project]
+name = "kernel-guard"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "CloudKernel",email = "bernabepuente@cloudkernel.app"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "azure-identity (>=1.25.2,<2.0.0)",
+    "azure-mgmt-resource (>=25.0.0,<26.0.0)",
+    "tabulate (>=0.9.0,<0.10.0)",
+    "boto3 (>=1.42.49,<2.0.0)",
+    "google-cloud-resource-manager (>=1.16.0,<2.0.0)"
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "moto>=5.0.0",
+    "freezegun>=1.4.0"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--cov=.",
+    "--cov-report=html",
+    "--cov-report=term-missing",
+    "--cov-fail-under=80",
+    "-v"
+]
+
+[tool.coverage.run]
+source = ["."]
+omit = ["tests/*", "venv/*", ".venv/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:"
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,50 @@
+name: Kernel-Guard Multicloud Scan
+
+on:
+  workflow_run:
+    workflows: ["Tests"] # Se ejecuta después del workflow de Tests
+    types:
+      - completed
+    branches: [main] # Solo cuando tests pasan en main
+  schedule:
+    - cron: "0 0 * * *" # Ejecución diaria a medianoche
+  workflow_dispatch: # Permite ejecución manual desde GitHub UI
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    # Solo ejecutar si:
+    # 1. Los tests fueron exitosos (cuando es triggereado por workflow_run)
+    # 2. Es ejecución programada (schedule)
+    # 3. Es ejecución manual (workflow_dispatch)
+    if: |
+      github.event_name == 'schedule' || 
+      github.event_name == 'workflow_dispatch' || 
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Install Dependencies
+        run: poetry install
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Run Kernel-Guard Scan
+        run: |
+          poetry run python main.py --cloud azure --target "RG_PROD_VIGO"
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
