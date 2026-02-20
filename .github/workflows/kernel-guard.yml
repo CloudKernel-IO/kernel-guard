@@ -6,8 +6,8 @@ on:
     types:
       - completed
     branches: [main] # Solo cuando tests pasan en main
-  schedule:
-    - cron: "0 0 * * *" # Ejecución diaria a medianoche
+  #schedule:
+  #  - cron: "0 0 * * *" # Ejecución diaria a medianoche
   workflow_dispatch: # Permite ejecución manual desde GitHub UI
 
 jobs:
